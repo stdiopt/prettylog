@@ -1,7 +1,7 @@
 package global
 
 import (
-	"hexasoftware/lib/prettylog"
+	"hxs/prettylog"
 	"log"
 )
 
