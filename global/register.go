@@ -1,8 +1,9 @@
 package global
 
 import (
-	"hexasoftware/lib/prettylog"
 	"log"
+
+	prettylog "dev.hexasoftware.com/hxs/prettylog.git"
 )
 
 func init() {
