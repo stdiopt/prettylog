@@ -6,8 +6,6 @@ import (
 	"runtime"
 	"strings"
 	"time"
-
-	"dev.hexasoftware.com/hxs/prettylog"
 )
 
 type PrettyLogWritter struct {
@@ -58,5 +56,5 @@ func CreateLogger() *log.Logger {
 
 func Global() {
 	log.SetFlags(0)
-	log.SetOutput(prettylog.New())
+	log.SetOutput(New())
 }
