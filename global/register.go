@@ -1,12 +1,9 @@
 package global
 
 import (
-	"log"
-
-	prettylog "dev.hexasoftware.com/hxs/prettylog.git"
+	"dev.hexasoftware.com/hxs/prettylog"
 )
 
 func init() {
-	log.SetFlags(0)
-	log.SetOutput(prettylog.New())
+	prettylog.Global()
 }
