@@ -37,12 +37,16 @@ func (p *PrettyLogWritter) Write(b []byte) (int, error) {
 
 	var fduration float64 = float64(timeDiff.Nanoseconds()) / 1000000.0
 
-	msg := fmt.Sprintf("[%d:\033[34m%s\033[0m (\033[33m%s:%d\033[0m) <\033[35m%s\033[0m> \033[90m+%.2f/ms\033[0m]: %s",
+	prefixStr := ""
+	if p.prefix != "" {
+		prefixStr = "<\033[35m" + p.prefix + "\033[0m> "
+	}
+	msg := fmt.Sprintf("[%d:\033[34m%s\033[0m (\033[33m%s:%d\033[0m) %s\033[90m+%.2f/ms\033[0m]: %s",
 		p.counter,
 		time.Now().Format("2006-01-02 15:04:05"),
 		fname,
 		line,
-		p.prefix,
+		prefixStr,
 		fduration,
 		string(b),
 	)
