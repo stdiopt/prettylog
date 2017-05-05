@@ -3,15 +3,24 @@ package prettylog
 import (
 	"fmt"
 	"log"
+	"os"
 	"runtime"
 	"strings"
 	"time"
+
+	"golang.org/x/crypto/ssh/terminal"
+)
+
+var (
+	style = NewStyle()
 )
 
 type PrettyLogWritter struct {
 	prefix   string
 	lastTime time.Time
 	counter  int64
+
+	// Flags??
 }
 
 func NewWriter(prefix string) *PrettyLogWritter {
@@ -19,6 +28,19 @@ func NewWriter(prefix string) *PrettyLogWritter {
 }
 
 func (p *PrettyLogWritter) Write(b []byte) (int, error) {
+	if len(b) == 0 {
+		return 0, nil
+	}
+
+	originalLen := len(b)
+	parts := strings.Split(string(b), "\n")
+	if len(parts) > 2 {
+		for _, v := range parts {
+			p.Write([]byte(v))
+		}
+		return originalLen, nil
+	}
+	msg := parts[0]
 
 	/*{
 		for i := 0; i < 6; i++ {
@@ -35,25 +57,39 @@ func (p *PrettyLogWritter) Write(b []byte) (int, error) {
 
 	timeDiff := time.Since(p.lastTime)
 
-	var fduration float64 = float64(timeDiff.Nanoseconds()) / 1000000.0
+	fdurationSuf := "ms"
+	fduration := float64(timeDiff.Nanoseconds()) / 1000000.0
+	if fduration > 100 {
+		fduration /= 1000
+		fdurationSuf = "s"
+	}
 
 	prefixStr := ""
 	if p.prefix != "" {
-		prefixStr = "<\033[35m" + p.prefix + "\033[0m> "
+		prefixStr = fmt.Sprintf("%12s", p.prefix)
 	}
-	msg := fmt.Sprintf("[%d:\033[34m%s\033[0m (\033[33m%s:%d\033[0m) %s\033[90m+%.2f/ms\033[0m]: %s",
-		p.counter,
-		time.Now().Format("2006-01-02 15:04:05"),
-		fname,
-		line,
-		prefixStr,
-		fduration,
-		string(b),
+
+	if !terminal.IsTerminal(int(os.Stderr.Fd())) {
+		style.Disabled = true
+	}
+	//msg := fmt.Sprintf("[%d:\033[34m%s\033[0m (\033[33m%s:%d\033[0m) %s\033[90m+%.2f/ms\033[0m]: %s",
+	str := fmt.Sprintf("[%s %s]: %s %s %s\n",
+		style.Get("Time", time.Now().Format("2006-01-02 15:04:05")),
+		style.Get("Prefix", prefixStr),
+		style.Get("Message", msg),
+
+		style.Get("Duration", fmt.Sprintf("+%.2f/%s", fduration, fdurationSuf)),
+		style.GetX("File", fmt.Sprintf("%s:%d", fname, line)),
 	)
 	p.lastTime = time.Now()
 	p.counter++
 
-	return fmt.Print(msg)
+	n, err := os.Stderr.Write([]byte(str))
+	if err != nil {
+		return n, err
+	}
+
+	return originalLen, nil
 }
 
 func New(prefix string) *log.Logger {
