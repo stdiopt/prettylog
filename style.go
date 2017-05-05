@@ -10,7 +10,7 @@ func NewStyle() *Style {
 	return &Style{
 		Disabled: false,
 		stylmap: map[string]string{
-			"Message":  "\033[01;37m",
+			"Message":  "\033[37m",
 			"Prefix":   "\033[33m",
 			"Time":     "\033[34m",
 			"Duration": "\033[90m",
