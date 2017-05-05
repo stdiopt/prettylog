@@ -66,10 +66,7 @@ func (p *PrettyLogWritter) Write(b []byte) (int, error) {
 		fdurationSuf = "s"
 	}
 
-	prefixStr := ""
-	if p.prefix != "" {
-		prefixStr = fmt.Sprintf("%12s", p.prefix)
-	}
+	prefixStr := fmt.Sprintf("%12s", p.prefix)
 
 	if !terminal.IsTerminal(int(os.Stderr.Fd())) {
 		style.Disabled = true
