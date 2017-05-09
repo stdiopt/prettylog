@@ -1,3 +1,4 @@
+/* Low performance but pretty and coherent log writer */
 package prettylog
 
 import (
@@ -33,6 +34,7 @@ func (p *PrettyLogWritter) Write(b []byte) (int, error) {
 	}
 
 	originalLen := len(b)
+
 	parts := strings.Split(string(b), "\n")
 	if len(parts) > 2 {
 		for _, v := range parts {
@@ -41,7 +43,7 @@ func (p *PrettyLogWritter) Write(b []byte) (int, error) {
 		return originalLen, nil
 	}
 	msg := parts[0]
-
+	//msg := string(b)
 	/*{
 		for i := 0; i < 6; i++ {
 			ptr, _, _, _ := runtime.Caller(i)
