@@ -3,6 +3,7 @@ package prettylog
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"runtime"
@@ -96,6 +97,10 @@ func (p *PrettyLogWritter) Write(b []byte) (int, error) {
 
 func New(prefix string) *log.Logger {
 	return log.New(NewWriter(prefix), "", 0)
+}
+
+func Dummy() *log.Logger {
+	return log.New(ioutil.Discard, "", 0)
 }
 
 func Global() {
