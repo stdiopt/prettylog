@@ -18,6 +18,7 @@ var (
 	style = NewStyle()
 )
 
+//Writter writer struct
 type Writter struct {
 	prefix   string
 	lastTime time.Time
@@ -77,7 +78,8 @@ func (p *Writter) Write(b []byte) (int, error) {
 		style.Disabled = true
 	}
 	//msg := fmt.Sprintf("[%d:\033[34m%s\033[0m (\033[33m%s:%d\033[0m) %s\033[90m+%.2f/ms\033[0m]: %s",
-	str := fmt.Sprintf("[%s %s]: %s %s %s\n",
+	str := fmt.Sprintf("[%s:%s %s]: %s %s %s\n",
+		style.Get("Counter", p.counter),
 		style.Get("Time", time.Now().Format("2006-01-02 15:04:05.000")),
 		style.Get("Prefix", prefixStr),
 		style.Get("Message", msg),
@@ -85,6 +87,7 @@ func (p *Writter) Write(b []byte) (int, error) {
 		style.Get("Duration", duration),
 		style.GetX("File", fmt.Sprintf("%s:%d", fname, line)),
 	)
+
 	p.lastTime = time.Now()
 	p.counter++
 
