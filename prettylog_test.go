@@ -11,4 +11,7 @@ func TestPrettylog(t *testing.T) {
 	log := prettylog.New("Test")
 
 	log.Println("ok!")
+
+	log2 := prettylog.New("")
+	log2.Println("Test")
 }

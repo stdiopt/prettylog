@@ -1,4 +1,4 @@
-/* Low performance but pretty and coherent log writer */
+/* Package prettylog Low performance but pretty and coherent log writer */
 package prettylog
 
 import (
@@ -11,13 +11,14 @@ import (
 	"time"
 
 	"golang.org/x/crypto/ssh/terminal"
+	//"golang.org/x/crypto/ssh/terminal"
 )
 
 var (
 	style = NewStyle()
 )
 
-type PrettyLogWritter struct {
+type Writter struct {
 	prefix   string
 	lastTime time.Time
 	counter  int64
@@ -25,11 +26,13 @@ type PrettyLogWritter struct {
 	// Flags??
 }
 
-func NewWriter(prefix string) *PrettyLogWritter {
-	return &PrettyLogWritter{prefix, time.Now(), 0}
+//NewWriter creates a new log writer to be used in log.SetOutput
+func NewWriter(prefix string) *Writter {
+	return &Writter{prefix, time.Now(), 0}
 }
 
-func (p *PrettyLogWritter) Write(b []byte) (int, error) {
+//Write io.Write implementation that parses the output
+func (p *Writter) Write(b []byte) (int, error) {
 	if len(b) == 0 {
 		return 0, nil
 	}
@@ -53,35 +56,33 @@ func (p *PrettyLogWritter) Write(b []byte) (int, error) {
 		}
 	}*/
 
-	ptr, _, line, _ := runtime.Caller(3)
+	ptr, file, line, _ := runtime.Caller(3)
+
 	tname := runtime.FuncForPC(ptr).Name()
-	li := strings.LastIndex(tname, "/")
-	fname := tname[li+1:]
+	//fmt.Println("Tname:", tname)
+
+	method := tname[strings.LastIndex(tname, ".")+1:]
+	fname := file[strings.LastIndex(file, "/")+1:]
 
 	timeDiff := time.Since(p.lastTime)
 
-	fdurationSuf := "ms"
-	fduration := float64(timeDiff.Nanoseconds()) / 1000000.0
-	if fduration > 100 {
-		fduration /= 1000
-		fdurationSuf = "s"
-	}
+	duration := durationStr(timeDiff)
 
-	prefixStr := ""
+	prefixStr := method
 	if p.prefix != "" {
-		prefixStr = fmt.Sprintf(" %s", p.prefix)
+		prefixStr = fmt.Sprintf("%s", p.prefix)
 	}
 
 	if !terminal.IsTerminal(int(os.Stderr.Fd())) {
 		style.Disabled = true
 	}
 	//msg := fmt.Sprintf("[%d:\033[34m%s\033[0m (\033[33m%s:%d\033[0m) %s\033[90m+%.2f/ms\033[0m]: %s",
-	str := fmt.Sprintf("[%s%s]: %s %s %s\n",
+	str := fmt.Sprintf("[%s %s]: %s %s %s\n",
 		style.Get("Time", time.Now().Format("2006-01-02 15:04:05.000")),
 		style.Get("Prefix", prefixStr),
 		style.Get("Message", msg),
 
-		style.Get("Duration", fmt.Sprintf("+%.2f/%s", fduration, fdurationSuf)),
+		style.Get("Duration", duration),
 		style.GetX("File", fmt.Sprintf("%s:%d", fname, line)),
 	)
 	p.lastTime = time.Now()
@@ -95,14 +96,17 @@ func (p *PrettyLogWritter) Write(b []byte) (int, error) {
 	return originalLen, nil
 }
 
+// New creates a new log.Logger with a prefix
 func New(prefix string) *log.Logger {
 	return log.New(NewWriter(prefix), "", 0)
 }
 
+// Dummy a log.Logger with io.Discard writer
 func Dummy() *log.Logger {
 	return log.New(ioutil.Discard, "", 0)
 }
 
+// Global sets the global log with a prettylog writer
 func Global() {
 	log.SetFlags(0)
 	log.SetOutput(NewWriter(""))

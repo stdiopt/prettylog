@@ -1,11 +1,12 @@
-/* Right now I only added necessary colors for logger */
 package prettylog
 
+// Style structure with disable option
 type Style struct {
 	Disabled bool
 	stylmap  map[string]string
 }
 
+// NewStyle fetches new Style with default values
 func NewStyle() *Style {
 	return &Style{
 		Disabled: false,
@@ -23,6 +24,7 @@ func (s *Style) color(code string, str string) string {
 	return code + str + "\033[0m"
 }
 
+//Get a msg string with style if enabled
 func (s *Style) Get(str, msg string) string {
 	if s.Disabled {
 		return msg
@@ -30,6 +32,7 @@ func (s *Style) Get(str, msg string) string {
 	return s.color(s.stylmap[str], msg)
 }
 
+//GetX gets a msg with style or none if disabled
 func (s *Style) GetX(str, msg string) string {
 	if s.Disabled {
 		return ""
