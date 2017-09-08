@@ -9,9 +9,6 @@ import (
 	"runtime"
 	"strings"
 	"time"
-
-	"golang.org/x/crypto/ssh/terminal"
-	//"golang.org/x/crypto/ssh/terminal"
 )
 
 var (
@@ -74,9 +71,9 @@ func (p *Writter) Write(b []byte) (int, error) {
 		prefixStr = fmt.Sprintf("%s", p.prefix)
 	}
 
-	if !terminal.IsTerminal(int(os.Stderr.Fd())) {
+	/*if !terminal.IsTerminal(int(os.Stderr.Fd())) {
 		style.Disabled = true
-	}
+	}*/
 	//msg := fmt.Sprintf("[%d:\033[34m%s\033[0m (\033[33m%s:%d\033[0m) %s\033[90m+%.2f/ms\033[0m]: %s",
 	str := fmt.Sprintf("[%s:%s %s]: %s %s %s\n",
 		style.Get("Counter", p.counter),
