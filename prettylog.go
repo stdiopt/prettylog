@@ -17,7 +17,7 @@ var (
 	// Style Global log style options
 	Style = style.NewDefault(
 		style.Options{
-			"Counter":  {Color: "\033[37m"},
+			"Counter":  {Color: "\033[37m", UseGlobalPad: true},
 			"Message":  {Color: "\033[37m"},
 			"Prefix":   {Color: "\033[33m", UseGlobalPad: true},
 			"Time":     {Color: "\033[34m"},
