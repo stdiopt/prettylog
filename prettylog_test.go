@@ -8,6 +8,7 @@ import (
 
 // Dumb test
 func TestPrettylog(t *testing.T) {
+
 	log := prettylog.New("Test")
 
 	log.Println("ok!")
@@ -15,4 +16,5 @@ func TestPrettylog(t *testing.T) {
 
 	log2 := prettylog.New("")
 	log2.Println("Test")
+	log.Println("ok!")
 }

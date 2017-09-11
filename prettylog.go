@@ -1,4 +1,4 @@
-/* Package prettylog Low performance but pretty and coherent log writer */
+/*Package prettylog Low performance but pretty and coherent log writer */
 package prettylog
 
 import (
@@ -9,10 +9,22 @@ import (
 	"runtime"
 	"strings"
 	"time"
+
+	"github.com/gohxs/prettylog/style"
 )
 
 var (
-	style = NewStyle()
+	// Style Global log style options
+	Style = style.NewDefault(
+		style.Options{
+			"Counter":  {Color: "\033[37m"},
+			"Message":  {Color: "\033[37m"},
+			"Prefix":   {Color: "\033[33m", UseGlobalPad: true},
+			"Time":     {Color: "\033[34m"},
+			"Duration": {Color: "\033[90m"},
+			"File":     {Color: "\033[30m"},
+		},
+	)
 )
 
 //Writter writer struct
@@ -70,19 +82,18 @@ func (p *Writter) Write(b []byte) (int, error) {
 	if p.prefix != "" {
 		prefixStr = fmt.Sprintf("%s", p.prefix)
 	}
-
 	/*if !terminal.IsTerminal(int(os.Stderr.Fd())) {
 		style.Disabled = true
 	}*/
 	//msg := fmt.Sprintf("[%d:\033[34m%s\033[0m (\033[33m%s:%d\033[0m) %s\033[90m+%.2f/ms\033[0m]: %s",
 	str := fmt.Sprintf("[%s:%s %s]: %s %s %s\n",
-		style.Get("Counter", p.counter),
-		style.Get("Time", time.Now().Format("2006-01-02 15:04:05.000")),
-		style.Get("Prefix", prefixStr),
-		style.Get("Message", msg),
+		Style.Get("Counter", p.counter),
+		Style.Get("Time", time.Now().Format("2006-01-02 15:04:05.000")),
+		Style.Get("Prefix", prefixStr),
+		Style.Get("Message", msg),
 
-		style.Get("Duration", duration),
-		style.GetX("File", fmt.Sprintf("%s:%d", fname, line)),
+		Style.Get("Duration", duration),
+		Style.GetX("File", fmt.Sprintf("%s:%d", fname, line)),
 	)
 
 	p.lastTime = time.Now()
