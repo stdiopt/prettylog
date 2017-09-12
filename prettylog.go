@@ -3,9 +3,9 @@ package prettylog
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
-	"os"
 	"runtime"
 	"strings"
 	"time"
@@ -32,13 +32,14 @@ type Writter struct {
 	prefix   string
 	lastTime time.Time
 	counter  int64
+	writers  []io.Writer
 
 	// Flags??
 }
 
 //NewWriter creates a new log writer to be used in log.SetOutput
-func NewWriter(prefix string) *Writter {
-	return &Writter{prefix, time.Now(), 0}
+func NewWriter(prefix string, writers ...io.Writer) *Writter {
+	return &Writter{prefix, time.Now(), 0, writers}
 }
 
 //Write io.Write implementation that parses the output
@@ -99,17 +100,19 @@ func (p *Writter) Write(b []byte) (int, error) {
 	p.lastTime = time.Now()
 	p.counter++
 
-	n, err := os.Stderr.Write([]byte(str))
-	if err != nil {
-		return n, err
+	for _, w := range p.writers {
+		n, err := w.Write([]byte(str))
+		if err != nil {
+			return n, err
+		}
 	}
 
 	return originalLen, nil
 }
 
 // New creates a new log.Logger with a prefix
-func New(prefix string) *log.Logger {
-	return log.New(NewWriter(prefix), "", 0)
+func New(prefix string, writers ...io.Writer) *log.Logger {
+	return log.New(NewWriter(prefix, writers...), "", 0)
 }
 
 // Dummy a log.Logger with io.Discard writer
