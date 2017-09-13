@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"os"
 	"runtime"
 	"strings"
 	"time"
@@ -39,7 +40,12 @@ type Writter struct {
 
 //NewWriter creates a new log writer to be used in log.SetOutput
 func NewWriter(prefix string, writers ...io.Writer) *Writter {
-	return &Writter{prefix, time.Now(), 0, writers}
+
+	wri := writers
+	if len(wri) == 0 { // defaults to stderr if none
+		wri = []io.Writer{os.Stderr}
+	}
+	return &Writter{prefix, time.Now(), 0, wri}
 }
 
 //Write io.Write implementation that parses the output
