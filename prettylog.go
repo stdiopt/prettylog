@@ -14,18 +14,25 @@ import (
 	"github.com/gohxs/prettylog/style"
 )
 
+type prettylogStyle struct {
+	Counter  style.Style
+	Message  style.Style
+	Prefix   style.Style
+	Time     style.Style
+	Duration style.Style
+	File     style.Style
+}
+
 var (
-	// Style Global log style options
-	Style = style.NewDefault(
-		style.Options{
-			"Counter":  {Color: "\033[37m", UseGlobalPad: true},
-			"Message":  {Color: "\033[37m"},
-			"Prefix":   {Color: "\033[33m", UseGlobalPad: true},
-			"Time":     {Color: "\033[34m"},
-			"Duration": {Color: "\033[90m"},
-			"File":     {Color: "\033[30m"},
-		},
-	)
+	// Style for each log area
+	Style = prettylogStyle{
+		Counter:  style.Style{Prefix: "\033[37m", Suffix: "\033[0m", IncrementPad: true},
+		Message:  style.Style{Prefix: "\033[37m", Suffix: "\033[0m"},
+		Prefix:   style.Style{Prefix: "\033[33m", Suffix: "\033[0m", IncrementPad: true},
+		Time:     style.Style{Prefix: "\033[34m", Suffix: "\033[0m"},
+		Duration: style.Style{Prefix: "\033[90m", Suffix: "\033[0m"},
+		File:     style.Style{Prefix: "\033[30m", Suffix: "\033[0m"},
+	}
 )
 
 //Writter writer struct
@@ -93,14 +100,18 @@ func (p *Writter) Write(b []byte) (int, error) {
 		style.Disabled = true
 	}*/
 	//msg := fmt.Sprintf("[%d:\033[34m%s\033[0m (\033[33m%s:%d\033[0m) %s\033[90m+%.2f/ms\033[0m]: %s",
-	str := fmt.Sprintf("[%s:%s %s]: %s %s %s\n",
-		Style.Get("Counter", p.counter),
-		Style.Get("Time", time.Now().Format("2006-01-02 15:04:05.000")),
-		Style.Get("Prefix", prefixStr),
-		Style.Get("Message", msg),
+	// If style disabled:
+	//str := fmt.Sprintf("[%s:%s %s]: %s %s %s\n", p.counter, time.Now().Format("2006-01-02 15:04:05.000"),
+	//	prefixStr, msg, duration)
 
-		Style.Get("Duration", duration),
-		Style.GetX("File", fmt.Sprintf("%s:%d", fname, line)),
+	str := fmt.Sprintf("[%s:%s %s]: %s %s %s\n",
+		Style.Counter.Get(p.counter),
+		Style.Time.Get(time.Now().Format("2006-01-02 15:04:05.000")),
+		Style.Prefix.Get(prefixStr),
+		Style.Message.Get(msg),
+
+		Style.Duration.Get(duration),
+		Style.File.Get(fmt.Sprintf("%s:%d", fname, line)),
 	)
 
 	p.lastTime = time.Now()
