@@ -26,12 +26,21 @@ type prettylogStyle struct {
 var (
 	// Style for each log area
 	Style = prettylogStyle{
-		Counter:  style.Style{Prefix: "\033[37m", Suffix: "\033[0m", IncrementPad: true},
-		Message:  style.Style{Prefix: "\033[37m", Suffix: "\033[0m"},
-		Prefix:   style.Style{Prefix: "\033[33m", Suffix: "\033[0m", IncrementPad: true},
+		Counter: style.Style{Prefix: "\033[37m", Suffix: "\033[0m", IncrementPad: true},
+		Message: style.Style{Prefix: "\033[37m", Suffix: "\033[0m"},
+		//Prefix:   style.Style{Prefix: "\033[33m", Suffix: "\033[0m", IncrementPad: true},
+		Prefix:   style.Style{IncrementPad: true},
 		Time:     style.Style{Prefix: "\033[34m", Suffix: "\033[0m"},
 		Duration: style.Style{Prefix: "\033[90m", Suffix: "\033[0m"},
 		File:     style.Style{Prefix: "\033[30m", Suffix: "\033[0m"},
+	}
+
+	// Color per Prefix
+	prefixStyle  = map[string]int{}
+	prefixColors = []string{
+		"\033[31m", "\033[32m", "\033[33m", "\033[35m", "\033[36m",
+		"\033[01;31m", "\033[01;32m", "\033[01;33m", "\033[01;34m",
+		"\033[01;35m", "\033[01;36m",
 	}
 )
 
@@ -96,18 +105,19 @@ func (p *Writter) Write(b []byte) (int, error) {
 	if p.prefix != "" {
 		prefixStr = fmt.Sprintf("%s", p.prefix)
 	}
-	/*if !terminal.IsTerminal(int(os.Stderr.Fd())) {
-		style.Disabled = true
-	}*/
-	//msg := fmt.Sprintf("[%d:\033[34m%s\033[0m (\033[33m%s:%d\033[0m) %s\033[90m+%.2f/ms\033[0m]: %s",
-	// If style disabled:
-	//str := fmt.Sprintf("[%s:%s %s]: %s %s %s\n", p.counter, time.Now().Format("2006-01-02 15:04:05.000"),
-	//	prefixStr, msg, duration)
+	// Colored prefix, it will match a string in the prefix map
+	// and fetch correspondent color in the color list
+	prefixStyleID, ok := prefixStyle[prefixStr]
+	if !ok {
+		prefixStyleID = len(prefixStyle)
+		prefixStyle[prefixStr] = prefixStyleID
+	}
+	prefixColorStr := fmt.Sprintf("%s%s\033[0m", prefixColors[prefixStyleID%len(prefixColors)], prefixStr)
 
 	str := fmt.Sprintf("[%s:%s %s]: %s %s %s\n",
 		Style.Counter.Get(p.counter),
 		Style.Time.Get(time.Now().Format("2006-01-02 15:04:05.000")),
-		Style.Prefix.Get(prefixStr),
+		Style.Prefix.Get(prefixColorStr),
 		Style.Message.Get(msg),
 
 		Style.Duration.Get(duration),
