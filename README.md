@@ -10,6 +10,7 @@ $ go get github.com/gohxs/prettylog
 ```go
 import (
 	"github.com/gohxs/prettylog"
+	"log"
 )
 
 func main() {
