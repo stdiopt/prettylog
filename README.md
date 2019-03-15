@@ -9,6 +9,7 @@ $ go get github.com/gohxs/prettylog
 
 ```go
 import (
+	"log"
 	"github.com/gohxs/prettylog"
 )
 
